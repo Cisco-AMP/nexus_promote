@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+require 'optparse'
+
+$LOAD_PATH.unshift(File.join(__dir__, '../lib'))
+require 'nexus_promote'
+
+DAY = 60 * 60 * 24
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: nexus_promote [options]'
+
+  opts.on('-h', '--help', 'Prints this help') do
+    puts opts
+    exit
+  end
+
+  options[:tag_to_promote] = nil
+  opts.on('-p', '--tag_to_promote TAG',
+    'Name of tag to promote [OPTIONAL: Searches for tags with the source repository in the name if not specified]') do |tag_to_promote|
+    options[:tag_to_promote] = tag_to_promote
+  end
+
+  options[:threshold] = 6 * DAY
+  opts.on('-t', '--threshold SECONDS', Integer,
+    'Number of seconds behind current time to use as a promotion threshold [OPTIONAL: Defaults to 6 days]') do |threshold|
+    options[:threshold] = threshold
+  end
+
+  opts.on('-v', '--verbose', 'Run verbosely') do
+    options[:verbose] = true
+  end
+end.parse!
+
+manager = NexusPromote::Manager.new(options[:tag_to_promote])
+manager.punch_in(options[:threshold])
