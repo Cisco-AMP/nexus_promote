@@ -1,0 +1,4 @@
+#!/bin/bash
+cd test
+bundle install
+bundle exec ruby functional_test.rb
